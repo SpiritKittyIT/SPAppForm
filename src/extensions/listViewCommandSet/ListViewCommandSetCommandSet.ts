@@ -6,6 +6,7 @@ import {
   ListViewStateChangedEventArgs
 } from '@microsoft/sp-listview-extensibility'
 import { Dialog } from '@microsoft/sp-dialog'
+import { ILang, getLangStrings } from '../../common/helpers/langHelper'
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -23,17 +24,12 @@ const LOG_SOURCE: string = 'ListViewCommandSetCommandSet'
 export default class ListViewCommandSetCommandSet extends BaseListViewCommandSet<IListViewCommandSetCommandSetProperties> {
 
   private _locale: string = 'en'
-  private _strings: any = null
+  private _strings: ILang = null
 
   public async onInit(): Promise<void> {
-    switch (this._locale) {
-      case "en":
-        this._strings = await import('../../common/lang/en.json')
-        break
-      default:
-        this._strings = await import('../../common/lang/en.json')
-        break
-    }
+    getLangStrings(this._locale).then((langStrings) => {
+      this._strings = langStrings
+    }).catch((err) => {console.error(err)})
 
     const newCommand: Command = this.tryGetCommand('NEW')
     newCommand.title = this._strings.Extension.ButtonTitles.New
@@ -55,12 +51,15 @@ export default class ListViewCommandSetCommandSet extends BaseListViewCommandSet
     switch (event.itemId) {
       case 'NEW':
         Dialog.alert(`You have pressed: ${this._strings.Extension.ButtonTitles.New}`)
+        .catch((err) => {console.error(err)})
         break
       case 'EDIT':
         Dialog.alert(`You have pressed: ${this._strings.Extension.ButtonTitles.Edit}`)
+        .catch((err) => {console.error(err)})
         break
       case 'DISPLAY':
         Dialog.alert(`You have pressed: ${this._strings.Extension.ButtonTitles.Display}`)
+        .catch((err) => {console.error(err)})
         break
       default:
         throw new Error('Unknown command')
