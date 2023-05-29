@@ -1,3 +1,16 @@
 {
-  "hello": "Hello!"
+  "Webpart": {
+    "Properties": {
+      "Description": "Description",
+      "BasicGroupName": "Group Name",
+      "InputFieldLabel": "Input Field"
+    }
+  },
+  "Extension": {
+    "ButtonTitles": {
+      "New": "New",
+      "Edit": "Edit",
+      "Display": "Display"
+    }
+  }
 }
