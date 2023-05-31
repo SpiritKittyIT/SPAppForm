@@ -20,10 +20,6 @@ const  AppForm: React.FC<IAppFormProps> = (props) => {
   
   React.useEffect(() => {
     props.graph.groups().then((groups) => {
-      console.log(groups)
-    }).catch((err) => {console.error(err)})
-
-    props.graph.groups().then((groups) => {
       groupOptionsSet(
         groups.map((group) => {
           return {

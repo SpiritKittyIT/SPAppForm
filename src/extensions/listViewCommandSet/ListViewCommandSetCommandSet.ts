@@ -7,6 +7,7 @@ import {
 } from '@microsoft/sp-listview-extensibility'
 import { Dialog } from '@microsoft/sp-dialog'
 import { ILang, getLangStrings } from '../../common/helpers/langHelper'
+import Constants from '../../common/helpers/const'
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -25,26 +26,28 @@ export default class ListViewCommandSetCommandSet extends BaseListViewCommandSet
 
   private _locale: string = 'en'
   private _strings: ILang = null
+  private _show: boolean = false
 
   public async onInit(): Promise<void> {
-    getLangStrings(this._locale).then((langStrings) => {
+    this._show = this.context.pageContext.list.serverRelativeUrl.split('/').pop() ===  Constants.ListSystemName
+
+    return getLangStrings(this._locale).then((langStrings) => {
       this._strings = langStrings
+
+      const newCommand: Command = this.tryGetCommand('NEW')
+      newCommand.visible = this._show
+      newCommand.title = this._strings.Extension.ButtonTitles.New
+  
+      const editCommand: Command = this.tryGetCommand('EDIT')
+      editCommand.visible = false
+      editCommand.title = this._strings.Extension.ButtonTitles.Edit
+  
+      const displayCommand: Command = this.tryGetCommand('DISPLAY')
+      displayCommand.visible = false
+      displayCommand.title = this._strings.Extension.ButtonTitles.Display
+  
+      this.context.listView.listViewStateChangedEvent.add(this, this._onListViewStateChanged)
     }).catch((err) => {console.error(err)})
-
-    const newCommand: Command = this.tryGetCommand('NEW')
-    newCommand.title = this._strings.Extension.ButtonTitles.New
-
-    const editCommand: Command = this.tryGetCommand('EDIT')
-    editCommand.visible = false
-    editCommand.title = this._strings.Extension.ButtonTitles.Edit
-
-    const displayCommand: Command = this.tryGetCommand('DISPLAY')
-    displayCommand.visible = false
-    displayCommand.title = this._strings.Extension.ButtonTitles.Display
-
-    this.context.listView.listViewStateChangedEvent.add(this, this._onListViewStateChanged)
-
-    return Promise.resolve()
   }
 
   public onExecute(event: IListViewCommandSetExecuteEventParameters): void {
@@ -73,8 +76,8 @@ export default class ListViewCommandSetCommandSet extends BaseListViewCommandSet
     const displayCommand: Command = this.tryGetCommand('DISPLAY')
     
     if (editCommand && displayCommand) {
-      editCommand.visible = this.context.listView.selectedRows?.length === 1
-      displayCommand.visible = this.context.listView.selectedRows?.length === 1
+      editCommand.visible = this._show && this.context.listView.selectedRows?.length === 1
+      displayCommand.visible = this._show && this.context.listView.selectedRows?.length === 1
     }
 
     // You should call this.raiseOnChage() to update the command bar
